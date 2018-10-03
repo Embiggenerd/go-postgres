@@ -14,7 +14,15 @@ const (
 	dbname = "go"
 )
 
-func main() {
+// GetTodos queries db for all todos objects by authorID
+func GetTodos(id int) *Todo {
+
+}
+
+var db *sql.DB
+
+// Init initializes our db in main
+func Init() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable",
 		host, port, user, dbname)
 
@@ -24,26 +32,26 @@ func main() {
 	}
 	defer db.Close()
 
-	type User struct {
-		ID        int
-		Age       int
-		FirstName string
-		LastName  string
-		Email     string
-	}
+	// type User struct {
+	// 	ID        int
+	// 	Age       int
+	// 	FirstName string
+	// 	LastName  string
+	// 	Email     string
+	// }
 
-	sqlStatement := `SELECT * FROM users WHERE id=$1`
-	var user User
+	// sqlStatement := `SELECT * FROM users WHERE id=$1`
+	// var user User
 
-	row := db.QueryRow(sqlStatement, 2)
-	err = row.Scan(&user.ID, &user.Age, &user.FirstName, &user.LastName, &user.Email)
-	switch err {
-	case sql.ErrNoRows:
-		fmt.Println("No rows were returned")
-		return
-	case nil:
-		fmt.Println(user)
-	default:
-		panic(err)
-	}
+	// row := db.QueryRow(sqlStatement, 2)
+	// err = row.Scan(&user.ID, &user.Age, &user.FirstName, &user.LastName, &user.Email)
+	// switch err {
+	// case sql.ErrNoRows:
+	// 	fmt.Println("No rows were returned")
+	// 	return
+	// case nil:
+	// 	fmt.Println(user)
+	// default:
+	// 	panic(err)
+	// }
 }

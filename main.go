@@ -11,15 +11,13 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"postGres/models/database"
+	"postGres/models"
 
 	_ "github.com/lib/pq"
 )
 
-
-
 // func loadTodo(id int) (*Todo, error) {
-// 	row := 
+// 	row :=
 // 	if err != nil {
 // 			return nil, err
 // 	}
@@ -31,17 +29,37 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("template error", err)
 	}
-	t.Execute(w, "go todos")
+	todos, err := models.GetTodos()
+	if err != nil {
+		fmt.Println("query error", err)
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	// data := struct{
+	// 	User string,
+	// 	TodosList []models.Todo
+	// }{"Igor A", todos}
+
+	for _, todo := range todos {
+		fmt.Fprintf(w, "%d, %s, %d, %t\n", todo.ID, todo.Body, todo.AuthorID, todo.Done)
+	}
+	fmt.Printf("%#v", todos)
+	err = t.Execute(w, todos)
+	if err != nil {
+		fmt.Println("t.exec fail", err)
+	}
 }
 
-func editHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.PATH[len("/edit/"):]
+// func editHandler(w http.ResponseWriter, r *http.Request) {
+// 	id := r.URL.PATH[len("/edit/"):]
 
-	t, err := 
-}
+// 	t, err :=
+// }
 
 func main() {
+	models.Init()
 	http.HandleFunc("/", indexHandler)
-	http.HandleFunc("/edit"), editHandler)
+	// http.HandleFunc("/edit"), editHandler)
 	http.ListenAndServe(":8000", nil)
 }

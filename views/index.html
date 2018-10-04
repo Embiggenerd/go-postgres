@@ -1,1 +1,21 @@
-<h1>Welcome to {{.}}</h1>
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Go To-Do list</title>
+</head>
+
+<body>
+
+  {{ range . }}
+		<div>
+			<div>
+				<strong>{{ .AuthorID }} wrote:</strong>
+			</div>
+			<div>{{ .Body }}</div>
+		</div>
+		{{ end }}
+</body>
+
+</html>
+

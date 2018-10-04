@@ -13,9 +13,32 @@ type Todo struct {
 	Done     bool
 }
 
+// SubmitTodo inserts values into todo table, querys by returned id, returns added todo
+func SubmitTodo(t *Todo) (*Todo, error) {
+	id := 0
+	sqlInsert := `
+		INSERT INTO todos ( body, authorId, done)
+		VALUES ($1, $2, $3)
+		RETURNING id`
+	// _, err := db.QueryRow(sql, t.body, t.authorID, t.done )
+	err := db.QueryRow(sqlInsert, "train elephants", "fuckin gandi", false).Scan(&id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("new id", id)
+	todo := new(Todo)
+	sqlQuery := `SELECT * FROM todos WHERE id = $1`
+	row := db.QueryRow(sqlQuery, id)
+
+	err = row.Scan(&todo.ID, &todo.Body, &todo.AuthorID, &todo.Done)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return todo, err
+}
+
 // GetTodos returns all todos in database
 func GetTodos() ([]*Todo, error) {
-	fmt.Println("dbz", db)
 
 	rows, err := db.Query("SELECT * FROM todos;")
 	if err != nil {

@@ -24,16 +24,22 @@ import (
 // 	return &Page{Title: title, Body: body}, nil
 // }
 
+var templates = template.Must(template.ParseFiles("views/index.html"))
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("views/index.html")
-	if err != nil {
-		fmt.Println("template error", err)
-	}
+	// t, err := template.ParseFiles("views/index.html")
+	// if err != nil {
+	// 	fmt.Println("template error", err)
+	// }
 	todos, err := models.GetTodos()
 	if err != nil {
 		fmt.Println("query error", err)
 		http.Error(w, http.StatusText(500), 500)
 		return
+	}
+	err = templates.ExecuteTemplate(w, "index.html", todos)
+	if err != nil {
+		fmt.Println("t.exec fail", err)
 	}
 
 	// data := struct{
@@ -41,14 +47,14 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// 	TodosList []models.Todo
 	// }{"Igor A", todos}
 
-	for _, todo := range todos {
-		fmt.Fprintf(w, "%d, %s, %d, %t\n", todo.ID, todo.Body, todo.AuthorID, todo.Done)
-	}
-	fmt.Printf("%#v", todos)
-	err = t.Execute(w, todos)
-	if err != nil {
-		fmt.Println("t.exec fail", err)
-	}
+	// for _, todo := range todos {
+	// 	fmt.Fprintf(w, "%d, %s, %d, %t\n", todo.ID, todo.Body, todo.AuthorID, todo.Done)
+	// }
+	//fmt.Printf("%#v", todos)
+	// err = t.Execute(w, todos)
+	// if err != nil {
+	// 	fmt.Println("t.exec fail", err)
+	// }
 }
 
 // func editHandler(w http.ResponseWriter, r *http.Request) {

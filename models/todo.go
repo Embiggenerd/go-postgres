@@ -13,6 +13,27 @@ type Todo struct {
 	Done     bool
 }
 
+// EditTodo tkes id, new body, updates todo table with id to have new body
+func EditTodo(id, body string) (*Todo, error) {
+	sqlUpdate := `
+		UPDATE todos
+		SET body = $1
+		WHERE id = $2`
+	_, err := db.Exec(sqlUpdate, id, body)
+	if err != nil {
+		panic(err)
+	}
+	todo := new(Todo)
+	sqlQuery := `SELECT * FROM todos WHERE id = $1`
+	row := db.QueryRow(sqlQuery, id)
+
+	err = row.Scan(&todo.ID, &todo.Body, &todo.AuthorID, &todo.Done)
+	if err != nil {
+		return nil, err
+	}
+	return todo, nil
+}
+
 // SubmitTodo inserts values into todo table, querys by returned id, returns added todo
 func SubmitTodo(t *Todo) (*Todo, error) {
 	id := 0

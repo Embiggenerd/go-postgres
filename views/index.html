@@ -9,14 +9,15 @@
   <h1>hi</h1>
 
   {{ range . }}
-		<div>
-			<div>
-				<strong>{{ .AuthorID }} wrote:</strong>
-			</div>
-			<div>{{ .Body }}</div>
-		</div>
-		{{ end }}
+  <div>
+    <div>
+      <strong>{{ .AuthorID }} wrote:</strong>
+    </div>
+    <div class="body-div"><a href="/edit/{{.ID}}">{{ .Body }}</a></div>
+  </div>
+  
+  {{ end }}
+
 </body>
 
 </html>
-

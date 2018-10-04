@@ -12,6 +12,7 @@ import (
 	"html/template"
 	"net/http"
 	"postGres/models"
+	"reflect"
 
 	_ "github.com/lib/pq"
 )
@@ -24,7 +25,7 @@ import (
 // 	return &Page{Title: title, Body: body}, nil
 // }
 
-var templates = template.Must(template.ParseFiles("views/index.html", "views/submit.html"))
+var templates = template.Must(template.ParseFiles("views/index.html", "views/submit.html", "views/edit.html"))
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// t, err := template.ParseFiles("views/index.html")
@@ -43,11 +44,26 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// func editHandler(w http.ResponseWriter, r *http.Request) {
-// 	id := r.URL.PATH[len("/edit/"):]
+func editHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		err := templates.ExecuteTemplate(w, "edit.html", nil)
+		if err != nil {
+			fmt.Println(err)
+		}
 
-// 	t, err :=
-// }
+	} else {
+		id := r.URL.Path[len("/edit/"):]
+		r.ParseForm()
+		body := r.Form["body"][0]
+		fmt.Println("typez", reflect.TypeOf(id))
+		_, err := models.EditTodo(id, body)
+		if err != nil {
+			fmt.Println(err)
+		}
+		http.Redirect(w, r, "/", http.StatusFound)
+
+	}
+}
 
 func submitHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
@@ -76,6 +92,6 @@ func main() {
 	models.Init()
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/submit", submitHandler)
-	// http.HandleFunc("/edit"), editHandler)
+	http.HandleFunc("/edit", editHandler)
 	http.ListenAndServe(":8000", nil)
 }

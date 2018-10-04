@@ -20,8 +20,8 @@ func SubmitTodo(t *Todo) (*Todo, error) {
 		INSERT INTO todos ( body, authorId, done)
 		VALUES ($1, $2, $3)
 		RETURNING id`
-	// _, err := db.QueryRow(sql, t.body, t.authorID, t.done )
-	err := db.QueryRow(sqlInsert, "train elephants", "fuckin gandi", false).Scan(&id)
+	err := db.QueryRow(sqlInsert, t.Body, t.AuthorID, t.Done).Scan(&id)
+	// err := db.QueryRow(sqlInsert, "train elephants", 123, false).Scan(&id)
 	if err != nil {
 		panic(err)
 	}
@@ -32,9 +32,9 @@ func SubmitTodo(t *Todo) (*Todo, error) {
 
 	err = row.Scan(&todo.ID, &todo.Body, &todo.AuthorID, &todo.Done)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
-	return todo, err
+	return todo, nil
 }
 
 // GetTodos returns all todos in database

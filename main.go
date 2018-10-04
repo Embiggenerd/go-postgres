@@ -24,7 +24,7 @@ import (
 // 	return &Page{Title: title, Body: body}, nil
 // }
 
-var templates = template.Must(template.ParseFiles("views/index.html"))
+var templates = template.Must(template.ParseFiles("views/index.html", "views/submit.html"))
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// t, err := template.ParseFiles("views/index.html")
@@ -41,20 +41,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("t.exec fail", err)
 	}
-
-	// data := struct{
-	// 	User string,
-	// 	TodosList []models.Todo
-	// }{"Igor A", todos}
-
-	// for _, todo := range todos {
-	// 	fmt.Fprintf(w, "%d, %s, %d, %t\n", todo.ID, todo.Body, todo.AuthorID, todo.Done)
-	// }
-	//fmt.Printf("%#v", todos)
-	// err = t.Execute(w, todos)
-	// if err != nil {
-	// 	fmt.Println("t.exec fail", err)
-	// }
 }
 
 // func editHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,9 +49,33 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 // 	t, err :=
 // }
 
+func submitHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		err := templates.ExecuteTemplate(w, "submit.html", nil)
+		if err != nil {
+			fmt.Println(err)
+		}
+	} else {
+		r.ParseForm()
+		fmt.Println("body:", r.Form["body"])
+		todo := models.Todo{0, r.Form["body"][0], 0, false}
+		fmt.Println("todo:", todo)
+
+		_, err := models.SubmitTodo(&todo)
+		if err != nil {
+			fmt.Println("submitHandlerError", err)
+		}
+		http.Redirect(w, r, "/submit", http.StatusFound)
+
+	}
+
+	// todo, err := models.SubmitTodo
+}
+
 func main() {
 	models.Init()
 	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/submit", submitHandler)
 	// http.HandleFunc("/edit"), editHandler)
 	http.ListenAndServe(":8000", nil)
 }

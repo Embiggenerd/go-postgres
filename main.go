@@ -45,17 +45,22 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[len("/edit/"):]
+
 	if r.Method == "GET" {
-		err := templates.ExecuteTemplate(w, "edit.html", nil)
+		err := templates.ExecuteTemplate(w, "edit.html", id)
 		if err != nil {
 			fmt.Println(err)
 		}
 
 	} else {
-		id := r.URL.Path[len("/edit/"):]
 		r.ParseForm()
 		body := r.Form["body"][0]
+		fmt.Println("edit body", body)
+		fmt.Println("edit id", id)
+
 		fmt.Println("typez", reflect.TypeOf(id))
+
 		_, err := models.EditTodo(id, body)
 		if err != nil {
 			fmt.Println(err)
@@ -81,17 +86,26 @@ func submitHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("submitHandlerError", err)
 		}
-		http.Redirect(w, r, "/submit", http.StatusFound)
-
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
+}
 
-	// todo, err := models.SubmitTodo
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		id := r.URL.Path[len("/delete/"):]
+		err := models.DeleteTodo(id)
+		if err != nil {
+			fmt.Println("delete error", err)
+		}
+		http.Redirect(w, r, "/", http.StatusFound)
+	}
 }
 
 func main() {
 	models.Init()
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/submit", submitHandler)
-	http.HandleFunc("/edit", editHandler)
+	http.HandleFunc("/edit/", editHandler)
+	http.HandleFunc("/delete/", deleteHandler)
 	http.ListenAndServe(":8000", nil)
 }

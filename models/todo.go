@@ -19,7 +19,7 @@ func EditTodo(id, body string) (*Todo, error) {
 		UPDATE todos
 		SET body = $1
 		WHERE id = $2`
-	_, err := db.Exec(sqlUpdate, id, body)
+	_, err := db.Exec(sqlUpdate, body, id)
 	if err != nil {
 		panic(err)
 	}
@@ -32,6 +32,19 @@ func EditTodo(id, body string) (*Todo, error) {
 		return nil, err
 	}
 	return todo, nil
+}
+
+// DeleteTodo sends delete instuction to db with todo's id
+func DeleteTodo(id string) error {
+	sqlDelete := `
+		DELETE FROM todos
+		WHERE id = $1`
+
+	_, err := db.Exec(sqlDelete, id)
+	if err != nil {
+		panic(err)
+	}
+	return err
 }
 
 // SubmitTodo inserts values into todo table, querys by returned id, returns added todo

@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	host   = "localhost"
-	port   = 5432
-	user   = "postgres"
-	dbname = "go"
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	dbname   = "go"
+	password = "postgres"
 )
 
 // GetTodos queries db for all todos objects by authorID
@@ -25,8 +26,8 @@ var db *sql.DB
 // Init initializes our db in main
 func Init() {
 	var err error
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable",
-		host, port, user, dbname)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable password=%s",
+		host, port, user, dbname, password)
 
 	db, err = sql.Open("postgres", psqlInfo)
 	if err != nil {

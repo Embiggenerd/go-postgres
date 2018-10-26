@@ -2,9 +2,8 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
+	"fmt" // Package pq importing drivers for db
 
-	// Package pq importing drivers for db
 	_ "github.com/lib/pq"
 )
 
@@ -15,11 +14,6 @@ const (
 	dbname   = "go"
 	password = "postgres"
 )
-
-// GetTodos queries db for all todos objects by authorID
-// func GetTodos(id int) *Todo {
-
-// }
 
 var db *sql.DB
 
@@ -38,6 +32,8 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
+
+	createTables()
 
 	fmt.Println("Successfully connected!")
 
@@ -63,4 +59,40 @@ func Init() {
 	// default:
 	// 	panic(err)
 	// }
+}
+
+func createTables() {
+	_, err := db.Query(`
+		CREATE TABLE IF NOT EXISTS users (
+			id SERIAL PRIMARY KEY,
+			age INT,
+			first_name TEXT,
+			last_name TEXT,
+			email TEXT UNIQUE NOT NULL,
+			password TEXT
+			);`)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = db.Query(`
+		CREATE TABLE IF NOT EXISTS todos (
+			id SERIAL PRIMARY KEY,
+			body TEXT,
+			authorid INT,
+			done BOOLEAN
+			);`)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = db.Query(`
+		CREATE TABLE IF NOT EXISTS sessions (
+			id SERIAL PRIMARY KEY,
+			userid INT,
+			hex TEXT
+			);`)
+	if err != nil {
+		panic(err)
+	}
 }

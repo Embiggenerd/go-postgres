@@ -1,0 +1,26 @@
+<html>
+
+<head>
+  <title></title>
+</head>
+<h1>Edit</h1>
+
+<body>
+  {{ if . }}
+  <h1>Hello, {{.}}</h1>
+  {{end}}
+  <h2>Please Login:</h2>
+  <form action="/login" method="post">
+
+    <div>email:
+      <input type="text" name="email">
+    </div>
+    <div>password:
+      <input type="text" name="password">
+    </div>
+
+    <input type="submit" value="Submit">
+  </form>
+</body>
+
+</html>

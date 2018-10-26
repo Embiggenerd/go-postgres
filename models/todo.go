@@ -55,7 +55,6 @@ func SubmitTodo(t *Todo) (*Todo, error) {
 		VALUES ($1, $2, $3)
 		RETURNING id`
 	err := db.QueryRow(sqlInsert, t.Body, t.AuthorID, t.Done).Scan(&id)
-	// err := db.QueryRow(sqlInsert, "train elephants", 123, false).Scan(&id)
 	if err != nil {
 		panic(err)
 	}

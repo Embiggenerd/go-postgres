@@ -9,16 +9,13 @@
   <h1>hi</h1>
   <a href="/submit">Submit</a>
 
-  {{ range . }}
+  {{ if . }}
   <div>
     <div>
-      <strong>{{ .AuthorID }} wrote:</strong>
+      <strong>{{ .FirstName }} {{ .LastName }} </strong>
     </div>
     <div class="body-div">
-      <a href="/edit/{{.ID}}">{{ .Body }}</a>
-      <form action="/delete/{{.ID}}" method="POST">
-        <button type="submit">Delete</button>
-      </form>
+      Is {{ .Age }} years old, and his id is {{ .ID }}
     </div>
   </div>
 

@@ -8,6 +8,7 @@ package main
 // learn testing along the way
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -30,35 +31,81 @@ import (
 var templates = template.Must(template.ParseFiles("views/index.html", "views/submit.html",
 	"views/edit.html", "views/register.html", "views/login.html"))
 
+func authRequired(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var sessionHexFromCookie string
+		cookie, err := r.Cookie("user-session")
+		if err != nil {
+			fmt.Println(err)
+			err = templates.ExecuteTemplate(w, "index.html", nil)
+			if err != nil {
+				fmt.Println("t.exec fail", err)
+			}
+		} else {
+			sessionHexFromCookie = cookie.Value
+			user, err := models.GetUserFromSession(sessionHexFromCookie)
+			// todos, err := models.GetTodos(user.ID)
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			// err = templates.ExecuteTemplate(w, "index.html",
+			// 	struct{ Todos, User interface{} }{todos, user})
+			// if err != nil {
+			// 	fmt.Println("t.exec fail", err)
+			// }
+			type contextKey string
+
+			f := func(ctx context.Context, k contextKey) {
+				v := ctx.Value(k)
+				if v != nil {
+					fmt.Println("user value in context", v)
+					return
+				}
+				fmt.Println("key not found:", k)
+			}
+			k := contextKey("user")
+			ctx := context.WithValue(context.Background(), k, user)
+			f(ctx, k)
+			f(ctx, contextKey("color"))
+		}
+		handler.ServeHTTP(w, r.WithContext(ctx))
+	}
+}
+
+// If cookie is present:
+// 	show index with blog posts
+// If not present:
+// 	show link to register or login
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// t, err := template.ParseFiles("views/index.html")
 	// if err != nil {
 	// 	fmt.Println("template error", err)
 	// }
-	var userIdFromCookie string
-	cookie, err := r.Cookie("user-session")
-	if err != nil {
-		panic(err)
-	}
-	userIdFromCookie = cookie.Value
+	// var userIdFromCookie string
+	// var sessionHexFromCookie string
+	// cookie, err := r.Cookie("user-session")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	err = templates.ExecuteTemplate(w, "index.html", nil)
+	// 	if err != nil {
+	// 		fmt.Println("t.exec fail", err)
+	// 	}
+	// } else {
+	// 	sessionHexFromCookie = cookie.Value
+	// 	user, err := models.GetUserFromSession(sessionHexFromCookie)
+	// 	todos, err := models.GetTodos(user.ID)
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 	}
 
-	user, err := models.GetUserFromSession(userIdFromCookie)
+	// 	err = templates.ExecuteTemplate(w, "index.html",
+	// 		struct{ Todos, User interface{} }{todos, user})
+	// 	if err != nil {
+	// 		fmt.Println("t.exec fail", err)
+	// 	}
+	// }
 
-	if err == nil {
-		err = templates.ExecuteTemplate(w, "userindex.html", user)
-
-	}
-
-	todos, err := models.GetTodos()
-	if err != nil {
-		fmt.Println("query error", err)
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
-	err = templates.ExecuteTemplate(w, "index.html", todos)
-	if err != nil {
-		fmt.Println("t.exec fail", err)
-	}
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
@@ -142,6 +189,12 @@ func registerUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Validate password, if true:
+//	Return user data
+// 	Find old session by user id, delete
+//	Create random hex string
+//	Create new row in sessions table with new user id, hex
+//
 func loginUserHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		err := templates.ExecuteTemplate(w, "login.html", nil)
@@ -154,32 +207,30 @@ func loginUserHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println(err)
 			http.Redirect(w, r, "/register", http.StatusFound)
-		}
-		err = models.DeleteSession(user.ID)
-		if err != nil {
-			fmt.Println(err)
-		}
-		hex, err := utils.RandHex(10)
-		if err != nil {
-			fmt.Println(err)
-		}
-		err = models.CreateSession(hex, user.ID)
-		if err != nil {
-			fmt.Println(err)
-		}
-		cookie := &http.Cookie{
-			Name:     "user-session",
-			Value:    hex,
-			MaxAge:   60 * 60 * 24,
-			HttpOnly: true,
+		} else {
+			err = models.DeleteSession(user.ID)
+			if err != nil {
+				fmt.Println(err)
+			}
+			hex, err := utils.RandHex(10)
+			if err != nil {
+				fmt.Println(err)
+			}
+			err = models.CreateSession(hex, user.ID)
+			if err != nil {
+				fmt.Println(err)
+			}
+			cookie := &http.Cookie{
+				Name:     "user-session",
+				Value:    hex,
+				MaxAge:   60 * 60 * 24,
+				HttpOnly: true,
+			}
+			http.SetCookie(w, cookie)
+			// http.Redirect(w, r, "/", http.StatusFound)
+
 		}
 
-		http.SetCookie(w, cookie)
-		// delete old session by user id
-		// create session
-		// if no error, set cookie
-
-		http.Redirect(w, r, "/", http.StatusFound)
 	}
 }
 
@@ -196,7 +247,7 @@ func logoutUserHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	models.Init()
-	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/", authRequired(indexHandler))
 	http.HandleFunc("/submit", submitHandler)
 	http.HandleFunc("/edit/", editHandler)
 	http.HandleFunc("/delete/", deleteHandler)

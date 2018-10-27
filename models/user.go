@@ -27,7 +27,7 @@ func RegisterUser(u *User) (*User, error) {
 	fmt.Println("new user id", id)
 	user := new(User)
 	sqlQuery := `
-		SELECT * FROM users WHERE id = $1`
+		SELECT * FROM users WHERE id = $1;`
 
 	row := db.QueryRow(sqlQuery, id)
 
@@ -47,10 +47,12 @@ func validatePassword(storedPassword, providedPassword string) (bool, error) {
 	return true, nil
 }
 
+// LoginUser compares submitted password to the one stored in users
+// table, returns user if validated
 func LoginUser(p, e string) (*User, error) {
 	sqlEmailQuery := `
 		SELECT * FROM users WHERE EMAIL = $1
-		LIMIT 1`
+		LIMIT 1;`
 	user := new(User)
 
 	err := db.QueryRow(sqlEmailQuery, e).Scan(&user.ID, &user.Age,
@@ -65,21 +67,27 @@ func LoginUser(p, e string) (*User, error) {
 	return user, nil
 }
 
-func GetUserFromSession(userId string) (*User, error) {
+func GetUserFromSession(hex string) (*User, error) {
+	fmt.Println("hex:", hex)
 	var id int
+	// sqlSessionQuery := `
+	// DECLARE
+	// l_id integer;
+	// BEGIN
+	// SELECT * FROM sessions
+	// WHERE hex = $1
+	// RETURNING userid;`
 	sqlSessionQuery := `
-		SELECT * FROM sessions
-		WHERE userid = $1
-		LIMIT 1
-		RETURNING userid`
+		 SELECT userid FROM sessions
+		 WHERE hex = $1`
 	user := new(User)
-	err := db.QueryRow(sqlSessionQuery, userId).Scan(&id)
+	err := db.QueryRow(sqlSessionQuery, hex).Scan(&id)
 	if err != nil {
 		panic(err)
 	}
 	sqlUserQuery := `
 		SELECT * FROM users
-		WHERE id = $1`
+		WHERE id = $1;`
 	err = db.QueryRow(sqlUserQuery, id).Scan(&user.ID, &user.Age,
 		&user.FirstName, &user.LastName, &user.Email, &user.Password)
 	if err != nil {

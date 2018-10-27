@@ -71,14 +71,14 @@ func SubmitTodo(t *Todo) (*Todo, error) {
 }
 
 // GetTodos returns all todos in database
-func GetTodos() ([]*Todo, error) {
-
-	rows, err := db.Query("SELECT * FROM todos;")
+func GetTodos(userId int) ([]*Todo, error) {
+	rows, err := db.Query(`
+		SELECT * FROM todos
+		WHERE authorId = 1$;`, userId)
 	if err != nil {
 		fmt.Println("queryerror", err)
 		return nil, err
 	}
-	fmt.Println("rowz", rows)
 	defer rows.Close()
 
 	todos := make([]*Todo, 0)

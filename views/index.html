@@ -8,11 +8,13 @@
 <body>
   <h1>hi</h1>
   <a href="/submit">Submit</a>
-
-  {{ range . }}
+  {{if .}}
+  <div>
+    <h2>{{.User.FirstName}} wrote:</h2>
+  </div>
+  {{ range .Todos}}
   <div>
     <div>
-      <strong>{{ .AuthorID }} wrote:</strong>
     </div>
     <div class="body-div">
       <a href="/edit/{{.ID}}">{{ .Body }}</a>
@@ -22,7 +24,7 @@
     </div>
   </div>
 
-  {{ end }}
+  {{ end }} {{ end }}
 
 </body>
 

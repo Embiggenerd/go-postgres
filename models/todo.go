@@ -74,7 +74,7 @@ func SubmitTodo(t *Todo) (*Todo, error) {
 func GetTodos(userId int) ([]*Todo, error) {
 	rows, err := db.Query(`
 		SELECT * FROM todos
-		WHERE authorId = 1$;`, userId)
+		WHERE authorid = $1;`, userId)
 	if err != nil {
 		fmt.Println("queryerror", err)
 		return nil, err

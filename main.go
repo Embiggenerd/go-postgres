@@ -1,12 +1,5 @@
 package main
 
-// create http routes for adding, deleting, changing todos
-// create user, todos model
-// [form data --> db, db --> templates]
-// incorporate sessions, login, register
-// [auth middleware, data validation]
-// learn testing along the way
-
 import (
 	"context"
 	"fmt"
@@ -20,16 +13,10 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// func loadTodo(id int) (*Todo, error) {
-// 	row :=
-// 	if err != nil {
-// 			return nil, err
-// 	}
-// 	return &Page{Title: title, Body: body}, nil
-// }
-
 var templates = template.Must(template.ParseFiles("views/index.html", "views/submit.html",
 	"views/edit.html", "views/register.html", "views/login.html"))
+
+type contextKey string
 
 func authRequired(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -44,17 +31,9 @@ func authRequired(handler http.HandlerFunc) http.HandlerFunc {
 		} else {
 			sessionHexFromCookie = cookie.Value
 			user, err := models.GetUserFromSession(sessionHexFromCookie)
-			// todos, err := models.GetTodos(user.ID)
 			if err != nil {
 				fmt.Println(err)
 			}
-
-			// err = templates.ExecuteTemplate(w, "index.html",
-			// 	struct{ Todos, User interface{} }{todos, user})
-			// if err != nil {
-			// 	fmt.Println("t.exec fail", err)
-			// }
-			type contextKey string
 
 			f := func(ctx context.Context, k contextKey) {
 				v := ctx.Value(k)
@@ -68,44 +47,30 @@ func authRequired(handler http.HandlerFunc) http.HandlerFunc {
 			ctx := context.WithValue(context.Background(), k, user)
 			f(ctx, k)
 			f(ctx, contextKey("color"))
+			handler.ServeHTTP(w, r.WithContext(ctx))
 		}
-		handler.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
 
-// If cookie is present:
-// 	show index with blog posts
-// If not present:
-// 	show link to register or login
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	// t, err := template.ParseFiles("views/index.html")
-	// if err != nil {
-	// 	fmt.Println("template error", err)
-	// }
-	// var userIdFromCookie string
-	// var sessionHexFromCookie string
-	// cookie, err := r.Cookie("user-session")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	err = templates.ExecuteTemplate(w, "index.html", nil)
-	// 	if err != nil {
-	// 		fmt.Println("t.exec fail", err)
-	// 	}
-	// } else {
-	// 	sessionHexFromCookie = cookie.Value
-	// 	user, err := models.GetUserFromSession(sessionHexFromCookie)
-	// 	todos, err := models.GetTodos(user.ID)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 	}
-
-	// 	err = templates.ExecuteTemplate(w, "index.html",
-	// 		struct{ Todos, User interface{} }{todos, user})
-	// 	if err != nil {
-	// 		fmt.Println("t.exec fail", err)
-	// 	}
-	// }
-
+	user, ok := r.Context().Value(contextKey("user")).(*models.User)
+	if ok {
+		fmt.Println("user from context works", user)
+		todos, err := models.GetTodos(user.ID)
+		if err != nil {
+			fmt.Println("gettods fail", err)
+		}
+		err = templates.ExecuteTemplate(w, "index.html",
+			struct{ Todos, User interface{} }{todos, user})
+		if err != nil {
+			fmt.Println("t.exec fail", err)
+		}
+	} else {
+		err := templates.ExecuteTemplate(w, "index.html", nil)
+		if err != nil {
+			fmt.Println("t.exec fail", err)
+		}
+	}
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +95,6 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 		}
 		http.Redirect(w, r, "/", http.StatusFound)
-
 	}
 }
 
@@ -141,15 +105,19 @@ func submitHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 		}
 	} else {
-		r.ParseForm()
-		fmt.Println("body:", r.Form["body"])
-		todo := models.Todo{0, r.Form["body"][0], 0, false}
-		fmt.Println("todo:", todo)
+		user, ok := r.Context().Value(contextKey("user")).(*models.User)
+		if ok {
+			r.ParseForm()
+			fmt.Println("body:", r.Form["body"])
+			todo := models.Todo{0, r.Form["body"][0], user.ID, false}
+			fmt.Println("todo:", todo)
 
-		_, err := models.SubmitTodo(&todo)
-		if err != nil {
-			panic(err)
+			_, err := models.SubmitTodo(&todo)
+			if err != nil {
+				panic(err)
+			}
 		}
+
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
 }
@@ -227,10 +195,8 @@ func loginUserHandler(w http.ResponseWriter, r *http.Request) {
 				HttpOnly: true,
 			}
 			http.SetCookie(w, cookie)
-			// http.Redirect(w, r, "/", http.StatusFound)
-
+			http.Redirect(w, r, "/", http.StatusFound)
 		}
-
 	}
 }
 
@@ -243,17 +209,18 @@ func logoutUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func main() {
 	models.Init()
 	http.HandleFunc("/", authRequired(indexHandler))
-	http.HandleFunc("/submit", submitHandler)
+	http.HandleFunc("/submit", authRequired(submitHandler))
 	http.HandleFunc("/edit/", editHandler)
 	http.HandleFunc("/delete/", deleteHandler)
 	http.HandleFunc("/register", registerUserHandler)
 	http.HandleFunc("/login", loginUserHandler)
-	http.HandleFunc("/logut", logoutUserHandler)
+	http.HandleFunc("/logout", logoutUserHandler)
 
 	http.ListenAndServe(":8000", nil)
 }

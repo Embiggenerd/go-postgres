@@ -70,13 +70,6 @@ func LoginUser(p, e string) (*User, error) {
 func GetUserFromSession(hex string) (*User, error) {
 	fmt.Println("hex:", hex)
 	var id int
-	// sqlSessionQuery := `
-	// DECLARE
-	// l_id integer;
-	// BEGIN
-	// SELECT * FROM sessions
-	// WHERE hex = $1
-	// RETURNING userid;`
 	sqlSessionQuery := `
 		 SELECT userid FROM sessions
 		 WHERE hex = $1`

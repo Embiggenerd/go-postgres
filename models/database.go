@@ -27,7 +27,6 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	// defer db.Close()
 	err = db.Ping()
 	if err != nil {
 		panic(err)
@@ -36,29 +35,6 @@ func Init() {
 	createTables()
 
 	fmt.Println("Successfully connected!")
-
-	// type User struct {
-	// 	ID        int
-	// 	Age       int
-	// 	FirstName string
-	// 	LastName  string
-	// 	Email     string
-	// }
-
-	// sqlStatement := `SELECT * FROM users WHERE id=$1`
-	// var user User
-
-	// row := db.QueryRow(sqlStatement, 2)
-	// err = row.Scan(&user.ID, &user.Age, &user.FirstName, &user.LastName, &user.Email)
-	// switch err {
-	// case sql.ErrNoRows:
-	// 	fmt.Println("No rows were returned")
-	// 	return
-	// case nil:
-	// 	fmt.Println(user)
-	// default:
-	// 	panic(err)
-	// }
 }
 
 func createTables() {

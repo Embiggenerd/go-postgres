@@ -6,26 +6,10 @@
 </head>
 
 <body>
-  <h1>hi</h1>
+  <h1>Goland todos!</h1>
   <a href="/submit">Submit</a>
-  {{if .}}
-  <div>
-    <h2>{{.User.FirstName}} wrote:</h2>
-  </div>
-  {{ range .Todos}}
-  <div>
-    <div>
-    </div>
-    <div class="body-div">
-      <a href="/edit/{{.ID}}">{{ .Body }}</a>
-      <form action="/delete/{{.ID}}" method="POST">
-        <button type="submit">Delete</button>
-      </form>
-    </div>
-  </div>
-
-  {{ end }} {{ end }}
-
+  <a href="/login">login</a>
+  <a href="/register">register</a>
 </body>
 
 </html>

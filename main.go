@@ -14,7 +14,7 @@ import (
 )
 
 var templates = template.Must(template.ParseFiles("views/index.html", "views/submit.html",
-	"views/edit.html", "views/register.html", "views/login.html"))
+	"views/edit.html", "views/register.html", "views/login.html", "views/home.html"))
 
 type contextKey string
 
@@ -60,7 +60,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("gettods fail", err)
 		}
-		err = templates.ExecuteTemplate(w, "index.html",
+		err = templates.ExecuteTemplate(w, "home.html",
 			struct{ Todos, User interface{} }{todos, user})
 		if err != nil {
 			fmt.Println("t.exec fail", err)

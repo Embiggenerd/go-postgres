@@ -214,6 +214,8 @@ func logoutUserHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	models.Init()
+	fs := http.FileServer(http.Dir("assets/"))
+	http.Handle("/static/", http.StripPrefix("/static", fs))
 	http.HandleFunc("/", authRequired(indexHandler))
 	http.HandleFunc("/submit", authRequired(submitHandler))
 	http.HandleFunc("/edit/", editHandler)

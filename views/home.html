@@ -2,29 +2,62 @@
 <html>
 
 <head>
-  <title>Go To-Do list</title>
+  <title>Go Potgres Todos</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="/static/mainFloats.css">
 </head>
 
 <body>
-  <h1>hi</h1>
-  <a href="/submit">Submit</a>
-  {{if .}}
-  <div>
-    <h2>{{.User.FirstName}} wrote:</h2>
-  </div>
-  {{ range .Todos}}
-  <div>
-    <div>
-    </div>
-    <div class="body-div">
-      <a href="/edit/{{.ID}}">{{ .Body }}</a>
-      <form action="/delete/{{.ID}}" method="POST">
-        <button type="submit">Delete</button>
-      </form>
-    </div>
+
+  <div class="header">
+    <h1>Home</h1>
   </div>
 
-  {{ end }} {{ end }}
+  <div class="nav">
+    <a href="/submit">Submit</a>
+    <a href="/logout">Logout</a>
+  </div>
+
+  <div class="row">
+
+    <div class="column side">
+      <h1>something</h1>
+    </div>
+
+    <div class="column middle">
+      {{if .}}
+      <div>
+        <h2>{{.User.FirstName}} {{.User.LastName}} wrote:</h2>
+      </div>
+      {{ range .Todos}}
+      <div class="card">
+        <div>
+        </div>
+        <div class="todo-div">
+          <div class="todo-text-div">
+            <a href="/edit/{{.ID}}">{{ .Body }}</a>
+          </div>
+
+          <form action="/delete/{{.ID}}" method="POST">
+            <button type="submit" class="delete-button">Delete</button>
+          </form>
+        </div>
+      </div>
+
+      {{ end }} {{ end }}
+
+    </div>
+
+    <div class="column side">
+      <h1>Something</h1>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <h2>Footer</h2>
+  </div>
 
 </body>
 

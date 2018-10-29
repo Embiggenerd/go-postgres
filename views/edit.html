@@ -1,12 +1,18 @@
 <html>
-    <head>
-    <title></title>
-    </head>
-    <h1>Edit</h1>
-    <body>
-        <form action="/edit/{{.}}" method="post">
-            Username:<input type="text" name="body">
-            <input type="submit" value="Submit">
-        </form>
-    </body>
+
+<head>
+    <title>Go Potgres Todos</title>
+    <link rel="stylesheet" type="text/css" href="/mainFloats.css">
+
+</head>
+<h1>Edit</h1>
+
+<body>
+    <form action="/edit/{{.}}" method="post">
+        Todo:
+        <input type="text" name="body">
+        <input type="submit" value="Submit">
+    </form>
+</body>
+
 </html>

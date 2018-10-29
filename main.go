@@ -16,6 +16,9 @@ import (
 var templates = template.Must(template.ParseFiles("views/index.html", "views/submit.html",
 	"views/edit.html", "views/register.html", "views/login.html", "views/home.html"))
 
+var tmplts = template.Must(template.ParseFiles("views/index2.html", "views/indexNoAuth.html", "views/noAuth.html", "views/home2.html", "views/nav.html",
+	"views/head.html", "views/header.html", "views/footer.html"))
+
 type contextKey string
 
 func authRequired(handler http.HandlerFunc) http.HandlerFunc {
@@ -24,7 +27,9 @@ func authRequired(handler http.HandlerFunc) http.HandlerFunc {
 		cookie, err := r.Cookie("user-session")
 		if err != nil {
 			fmt.Println(err)
-			err = templates.ExecuteTemplate(w, "index.html", nil)
+			// err = templates.ExecuteTemplate(w, "index.html", nil)
+			err = tmplts.ExecuteTemplate(w, "indexNoAuth.html", nil)
+
 			if err != nil {
 				fmt.Println("t.exec fail", err)
 			}
@@ -60,7 +65,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("gettods fail", err)
 		}
-		err = templates.ExecuteTemplate(w, "home.html",
+		// err = templates.ExecuteTemplate(w, "home.html",
+		err = tmplts.ExecuteTemplate(w, "index2.html",
 			struct{ Todos, User interface{} }{todos, user})
 		if err != nil {
 			fmt.Println("t.exec fail", err)

@@ -19,7 +19,15 @@ var templates = template.Must(template.ParseFiles("views/index.html", "views/sub
 var tmplts = template.Must(template.ParseFiles("views/index2.html", "views/indexNoAuth.html", "views/noAuth.html", "views/home2.html", "views/nav.html",
 	"views/head.html", "views/header.html", "views/footer.html"))
 
+// type templData struct {
+// 	bustedStyles string
+// 	user User
+// 	todo Todo
+// }
+
 type contextKey string
+
+var cacheBustedCss string
 
 func authRequired(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -225,8 +233,13 @@ func main() {
 	// 	fmt.Println("renaming error", err)
 	// }
 
-	err := utils.Visit()
-	fs := http.FileServer(http.Dir("assets/"))
+	// err := utils.Visit()
+	cacheBustedCss, err := utils.BustaCache("mainFloats.css", cacheBustedCss)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("cacheBustedCss", cacheBustedCss)
+	fs := http.FileServer(http.Dir("public/"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))
 	http.HandleFunc("/", authRequired(indexHandler))
 	http.HandleFunc("/submit", authRequired(submitHandler))

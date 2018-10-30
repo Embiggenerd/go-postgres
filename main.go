@@ -220,6 +220,12 @@ func logoutUserHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	models.Init()
+	// err := utils.AmendFilename("/home/go/src/postGres/static/mainFloats.css", "hash")
+	// if err != nil {
+	// 	fmt.Println("renaming error", err)
+	// }
+
+	err := utils.Visit()
 	fs := http.FileServer(http.Dir("assets/"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))
 	http.HandleFunc("/", authRequired(indexHandler))
@@ -229,6 +235,5 @@ func main() {
 	http.HandleFunc("/register", registerUserHandler)
 	http.HandleFunc("/login", loginUserHandler)
 	http.HandleFunc("/logout", logoutUserHandler)
-
 	http.ListenAndServe(":8000", nil)
 }

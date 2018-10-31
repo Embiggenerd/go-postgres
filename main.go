@@ -65,17 +65,25 @@ func authRequired(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+type templData struct {
+	Styles string
+	Todos  interface{}
+	User   interface{}
+}
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	user, ok := r.Context().Value(contextKey("user")).(*models.User)
 	if ok {
 		fmt.Println("user from context works", user)
 		todos, err := models.GetTodos(user.ID)
 		if err != nil {
-			fmt.Println("gettods fail", err)
+			fmt.Println("gettodos fail", err)
 		}
 		// err = templates.ExecuteTemplate(w, "home.html",
+		fmt.Println("hhh", templData{cacheBustedCss, todos, user})
 		err = tmplts.ExecuteTemplate(w, "index2.html",
-			struct{ Todos, User interface{} }{todos, user})
+			// struct{ Todos, User interface{} }{ todos, user})
+			templData{cacheBustedCss, todos, user})
 		if err != nil {
 			fmt.Println("t.exec fail", err)
 		}
@@ -226,6 +234,9 @@ func logoutUserHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
+func init() {
+
+}
 func main() {
 	models.Init()
 	// err := utils.AmendFilename("/home/go/src/postGres/static/mainFloats.css", "hash")
@@ -234,10 +245,10 @@ func main() {
 	// }
 
 	// err := utils.Visit()
-	cacheBustedCss, err := utils.BustaCache("mainFloats.css", cacheBustedCss)
-	if err != nil {
-		fmt.Println(err)
-	}
+	cacheBustedCss, _ = utils.BustaCache("mainFloats.css", cacheBustedCss)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 	fmt.Println("cacheBustedCss", cacheBustedCss)
 	fs := http.FileServer(http.Dir("public/"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))

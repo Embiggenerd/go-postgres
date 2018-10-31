@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 
-{{ template "head"}}
+{{ template "head" .}}
 
 <body>
+  <div>styles:{{.Styles}}</div>
 
   {{ template "header" .}} {{ template "nav " .}}
 

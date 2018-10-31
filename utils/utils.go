@@ -111,11 +111,12 @@ func copyFileToPublic(path string) error {
 }
 
 func removeStaleFiles(prefix string) error {
+	separated := strings.Split(prefix, ".")
 	err := filepath.Walk("./public", func(path string, file os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		ok := strings.HasPrefix(file.Name(), prefix)
+		ok := strings.HasPrefix(file.Name(), separated[0])
 		if ok {
 			err := os.Remove(path)
 			if err != nil {
@@ -156,10 +157,17 @@ func BustaCache(filename, oldFile string) (string, error) {
 				fmt.Println(err)
 				return err
 			}
+			separated := strings.Split(file.Name(), ".")
+
 			var b strings.Builder
-			b.WriteString(newPath)
+			b.WriteString("./")
+			b.WriteString(filepath.Dir(newPath))
+			b.WriteString("/")
+			b.WriteString(separated[0])
 			b.WriteString(".")
 			b.WriteString(hash)
+			b.WriteString(".")
+			b.WriteString(separated[1])
 
 			_, filenamePlusHash = filepath.Split(b.String())
 

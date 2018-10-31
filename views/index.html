@@ -1,15 +1,25 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-  <title>Go Potgres Todos</title>
-</head>
-<h1>Welcome</h1>
+{{ template "head" .}}
 
 <body>
-  <h1>Goland todos!</h1>
-  <a href="/login">Login</a>
-  <a href="/register">Register</a>
+
+  {{ template "header" .}} {{ template "nav " .}}
+
+  <div class="row">
+    
+    {{ if ( eq .State "home") }} {{ template "home2" .}} {{ end }} 
+    {{ if ( eq .State "editTodo") }} {{ template "editTodo" .}} {{ end }} 
+    {{ if ( eq .State "withoutAuth")}} {{ template "withoutAuth"}} {{ end }} 
+    {{ if ( eq .State "signup")}} {{ template "signup"}} {{end}}
+    {{ if ( eq .State "login")}} {{ template "login"}} {{end}}
+    {{ if ( eq .State "submitTodo")}} {{ template "submitTodo"}} {{end}}
+
+  </div>
+
+  {{ template "footer" .}}
+
 </body>
 
 </html>

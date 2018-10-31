@@ -2,10 +2,6 @@
   box-sizing: border-box;
 }
 
-p#unauthed {
-  color: blue;
-}
-
 html {
   height: 100vh;
 }
@@ -14,13 +10,21 @@ body {
   background-color: #333;
   height: 100vh;
   font-size: 1.2em;
-  /* background: #f1f1f1; */
 }
 
 button {
   padding: 5px;
   border-radius: 3px;
   margin-top: 10px;
+}
+
+section {
+  margin: 40px 40px 30px 40px;
+}
+
+.container {
+  margin: auto;
+  width: 50%;
 }
 
 .header {
@@ -54,6 +58,7 @@ button {
   padding: 10px;
   height: 100%;
   border-radius: 10px;
+  text-decoration: none;
 }
 
 /* .no-auth-div {
@@ -65,6 +70,7 @@ button {
 
 .side {
   width: 28.5%;
+  text-align: center;
 }
 
 .middle {
@@ -73,18 +79,11 @@ button {
   margin-left: 1.5%;
 }
 
-/* div#single {
-  background-color: #f1f1f1 !important;
-  float: right !important;
-  display: block;
-  margin: auto;
+.single {
   width: 50%;
-  color: red;
+  float: none;
+  margin: auto;
 }
-
-div#single p {
-  color: red;
-} */
 
 .row {
   padding: 1.5%;
@@ -118,6 +117,11 @@ div#single p {
 .delete-button {
   background: lightpink;
   border: solid thin pink;
+}
+
+#home-button {
+  float: right;
+  margin-right: 40px;
 }
 
 .delete-button:hover {

@@ -13,18 +13,17 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var templates = template.Must(template.ParseFiles("views/index.html", "views/submit.html",
-	"views/edit.html", "views/register.html", "views/login.html", "views/home.html"))
+var tmplts = template.Must(template.ParseFiles("views/index.html", "views/withoutAuth.html", "views/home.html", "views/nav.html",
+	"views/head.html", "views/header.html", "views/footer.html", "views/login.html", "views/editTodo.html", "views/signup.html", "views/submitTodo.html"))
 
-var tmplts = template.Must(template.ParseFiles("views/index2.html", "views/indexNoAuth.html", "views/noAuth.html", "views/home2.html", "views/nav.html",
-	"views/head.html", "views/header.html", "views/footer.html"))
-
-// type templData struct {
-// 	bustedStyles string
-// 	user User
-// 	todo Todo
-// }
-
+type templData struct {
+	State  string
+	Header string
+	Styles string
+	TodoId string
+	Todos  interface{}
+	User   interface{}
+}
 type contextKey string
 
 var cacheBustedCss string
@@ -36,7 +35,9 @@ func authRequired(handler http.HandlerFunc) http.HandlerFunc {
 		if err != nil {
 			fmt.Println(err)
 			// err = templates.ExecuteTemplate(w, "index.html", nil)
-			err = tmplts.ExecuteTemplate(w, "indexNoAuth.html", nil)
+			err = tmplts.ExecuteTemplate(w, "index.html", templData{"withoutAuth",
+				"Welcome to Go Postgres Todos", cacheBustedCss, "", nil, nil,
+			})
 
 			if err != nil {
 				fmt.Println("t.exec fail", err)
@@ -65,12 +66,6 @@ func authRequired(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-type templData struct {
-	Styles string
-	Todos  interface{}
-	User   interface{}
-}
-
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	user, ok := r.Context().Value(contextKey("user")).(*models.User)
 	if ok {
@@ -79,40 +74,42 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("gettodos fail", err)
 		}
-		// err = templates.ExecuteTemplate(w, "home.html",
-		fmt.Println("hhh", templData{cacheBustedCss, todos, user})
-		err = tmplts.ExecuteTemplate(w, "index2.html",
-			// struct{ Todos, User interface{} }{ todos, user})
-			templData{cacheBustedCss, todos, user})
+		err = tmplts.ExecuteTemplate(w, "index.html",
+			templData{"home", "Home", cacheBustedCss, "", todos, user})
 		if err != nil {
 			fmt.Println("t.exec fail", err)
 		}
-	} else {
-		err := templates.ExecuteTemplate(w, "index.html", nil)
-		if err != nil {
-			fmt.Println("t.exec fail", err)
-		}
+		// } else {
+		// 	err := templates.ExecuteTemplate(w, "index.html", nil)
+		// 	if err != nil {
+		// 		fmt.Println("t.exec fail", err)
+		// 	}
 	}
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Path[len("/edit/"):]
+	todoId := r.URL.Path[len("/edit/"):]
 
 	if r.Method == "GET" {
-		err := templates.ExecuteTemplate(w, "edit.html", id)
-		if err != nil {
-			fmt.Println(err)
-		}
+		_, ok := r.Context().Value(contextKey("user")).(*models.User)
 
+		if ok {
+			err := tmplts.ExecuteTemplate(w, "index.html",
+				templData{"editTodo", "Edit your todo", cacheBustedCss, todoId, nil, nil})
+
+			if err != nil {
+				fmt.Println("t.exec fail", err)
+			}
+
+		}
 	} else {
 		r.ParseForm()
 		body := r.Form["body"][0]
 		fmt.Println("edit body", body)
-		fmt.Println("edit id", id)
+		fmt.Println("edit id", todoId)
 
-		fmt.Println("typez", reflect.TypeOf(id))
-
-		_, err := models.EditTodo(id, body)
+		fmt.Println("typez", reflect.TypeOf(todoId))
+		_, err := models.EditTodo(todoId, body)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -122,7 +119,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 
 func submitHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		err := templates.ExecuteTemplate(w, "submit.html", nil)
+		err := tmplts.ExecuteTemplate(w, "index.html", templData{State: "submitTodo", Header: "Submit a new todo", Styles: cacheBustedCss, TodoId: "", Todos: nil, User: nil})
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -157,7 +154,9 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 
 func registerUserHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		err := templates.ExecuteTemplate(w, "register.html", nil)
+		err := tmplts.ExecuteTemplate(w, "index.html", templData{
+			State: "signup", Header: "Register with an email and password", Styles: cacheBustedCss, TodoId: "", Todos: nil, User: nil,
+		})
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -187,7 +186,7 @@ func registerUserHandler(w http.ResponseWriter, r *http.Request) {
 //
 func loginUserHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		err := templates.ExecuteTemplate(w, "login.html", nil)
+		err := tmplts.ExecuteTemplate(w, "index.html", templData{State: "login", Header: "Log in with an email and password", Styles: cacheBustedCss, TodoId: "", Todos: nil, User: nil})
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -254,7 +253,7 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static", fs))
 	http.HandleFunc("/", authRequired(indexHandler))
 	http.HandleFunc("/submit", authRequired(submitHandler))
-	http.HandleFunc("/edit/", editHandler)
+	http.HandleFunc("/edit/", authRequired(editHandler))
 	http.HandleFunc("/delete/", deleteHandler)
 	http.HandleFunc("/register", registerUserHandler)
 	http.HandleFunc("/login", loginUserHandler)

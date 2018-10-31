@@ -1,64 +1,35 @@
-<!DOCTYPE html>
-<html>
+{{ define "home2"}}
 
-<head>
-  <title>Go Potgres Todos</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="/static/mainFloats.css">
-</head>
+<div class="column side">
+  <h1>something</h1>
+</div>
 
-<body>
-
-  <div class="header">
-    <h1>Home</h1>
+<div class="column middle">
+  {{if .}}
+  <div>
+    <h2>{{.User.FirstName}} {{.User.LastName}} wrote:</h2>
   </div>
-
-  <div class="nav">
-    <a href="/submit">Submit</a>
-    <a href="/logout">Logout</a>
-  </div>
-
-  <div class="row">
-
-    <div class="column side">
-      <h1>something</h1>
+  {{ range .Todos}}
+  <div class="card">
+    <div>
     </div>
-
-    <div class="column middle">
-      {{if .}}
-      <div>
-        <h2>{{.User.FirstName}} {{.User.LastName}} wrote:</h2>
-      </div>
-      {{ range .Todos}}
-      <div class="card">
-        <div>
-        </div>
-        <div class="todo-div">
-          <div class="todo-text-div">
-            <a href="/edit/{{.ID}}">{{ .Body }}</a>
-          </div>
-
-          <form action="/delete/{{.ID}}" method="POST">
-            <button type="submit" class="delete-button">Delete</button>
-          </form>
-        </div>
+    <div class="todo-div">
+      <div class="todo-text-div">
+        <a href="/edit/{{.ID}}">{{ .Body }}</a>
       </div>
 
-      {{ end }} {{ end }}
-
+      <form action="/delete/{{.ID}}" method="POST">
+        <button type="submit" class="delete-button">Delete</button>
+      </form>
     </div>
-
-    <div class="column side">
-      <h1>Something</h1>
-    </div>
-
   </div>
 
-  <div class="footer">
-    <h2>Footer</h2>
-  </div>
+  {{ end }} {{ end }}
 
-</body>
+</div>
 
-</html>
+<div class="column side">
+  <h1>Something</h1>
+</div>
+
+{{ end }}

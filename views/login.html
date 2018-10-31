@@ -1,26 +1,25 @@
-<html>
+{{ define "login" }}
 
-<head>
-  <title>Go Potgres Todos</title>
-</head>
-<h1>Edit</h1>
+<div class="column single">
+  <div class="container">
+    <section>
+      
+      <form action="/login" method="post">
 
-<body>
-  {{ if . }}
-  <h1>Hello, {{.}}</h1>
-  {{end}}
-  <h2>Please Login:</h2>
-  <form action="/login" method="post">
+        <div>email:
+          <input type="text" name="email">
+        </div>
 
-    <div>email:
-      <input type="text" name="email">
-    </div>
-    <div>password:
-      <input type="text" name="password">
-    </div>
+        <div>password:
+          <input type="text" name="password">
+        </div>
 
-    <input type="submit" value="Submit">
-  </form>
-</body>
+        <input type="submit" value="Submit">
 
-</html>
+      </form>
+      
+    </section>
+  </div>
+</div>
+
+{{ end }}

@@ -1,0 +1,14 @@
+{{ define "submitTodo"}}
+<div class="column single">
+    <div class="container">
+        <section>
+            <form action="/submit" method="post">
+                Todo:
+                <input type="text" name="body">
+                <input type="submit" value="Submit">
+            </form>
+        </section>
+    </div>
+</div>
+
+{{ end }}

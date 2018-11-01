@@ -1,0 +1,10 @@
+1) error handling
+  make custum handling functions that redirect to 400/500 pages
+
+2) create data validation with appropriate error msgs
+
+3) tests, 100% coverage integration tests
+
+4) use standard crypt lib for stored passwords, cookie value
+
+5) refactor code, make sure main func is as small as possible

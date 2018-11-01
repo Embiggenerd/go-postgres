@@ -3,7 +3,7 @@
 <div class="column single">
   <div class="container">
     <section>
-      
+
       <form action="/login" method="post">
 
         <div>email:
@@ -17,9 +17,12 @@
         <input type="submit" value="Submit">
 
       </form>
-      
+
     </section>
   </div>
 </div>
 
-{{ end }}
+{{ end }}func InternalServerError(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("Internal server error"))
+}

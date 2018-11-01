@@ -52,14 +52,12 @@ func authRequired(handler http.HandlerFunc) http.HandlerFunc {
 			sessionHexFromCookie = cookie.Value
 
 			user, err := models.GetUserFromSession(sessionHexFromCookie)
-
 			if err != nil {
 				utils.UnauthorizedUserError(w)
 			}
 
 			f := func(ctx context.Context, k contextKey) {
 				v := ctx.Value(k)
-
 				if v != nil {
 					fmt.Println("user value in context", v)
 					return
@@ -81,11 +79,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		utils.InternalServerError(w, r)
 	}
-	fmt.Println("user from context works", user)
+
 	todos, err := models.GetTodos(user.ID)
 	if err != nil {
 		utils.InternalServerError(w, r)
 	}
+
 	err = tmplts.ExecuteTemplate(w, "index.html",
 		templData{
 			State:  "home",

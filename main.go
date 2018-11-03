@@ -20,8 +20,8 @@ type templData struct {
 	Header string
 	Styles string
 	TodoId string
-	Todos  interface{}
-	User   interface{}
+	Todos  []*models.Todo
+	User   *models.User
 }
 type contextKey string
 
